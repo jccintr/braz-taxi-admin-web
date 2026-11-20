@@ -1,0 +1,139 @@
+@import 'tailwindcss';
+@import 'flowbite-react/plugin/tailwindcss';
+@import 'leaflet/dist/leaflet.css';
+@source '../.flowbite-react/class-list.json';
+
+/* Tailwind v4: o variant `dark:` (inclusive o dos componentes do flowbite-react) vale quando um
+   ancestral tem a classe .dark — é o que o ThemeContext troca na <html> (Claro / Escuro / Sistema). */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Identidade Braz Taxi: amarelo-táxi + preto (mesma do logo, do app e da landing page).
+   Os componentes do flowbite-react usam as escalas `primary-*` e `gray-*`; redefinindo-as aqui,
+   inputs, modais, dropdowns e tabelas já saem na identidade nos dois temas. */
+@theme {
+  --color-primary-50: #fffbe6;
+  --color-primary-100: #fff3bf;
+  --color-primary-200: #ffe680;
+  --color-primary-300: #ffd84d;
+  --color-primary-400: #ffcc1a; /* amarelo do logo */
+  --color-primary-500: #f5b800;
+  --color-primary-600: #d49a00;
+  --color-primary-700: #a87700;
+  --color-primary-800: #7d5800;
+  --color-primary-900: #523a00;
+
+  /* cinzas quentes (asfalto): no tema escuro viram as superfícies do app */
+  --color-gray-50: #f7f6f3;
+  --color-gray-100: #efede8;
+  --color-gray-200: #e2dfd8;
+  --color-gray-300: #c9c5bc;
+  --color-gray-400: #a19c92;
+  --color-gray-500: #78736a;
+  --color-gray-600: #57534b;
+  --color-gray-700: #3a3732;
+  --color-gray-800: #23211e;
+  --color-gray-900: #161513;
+
+  --font-display: 'Oswald', ui-sans-serif, system-ui, sans-serif;
+
+  --animate-ping-slow: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+  --animate-fade-up: fadeUp 0.35s ease-out both;
+  --animate-road: road 1.2s linear infinite;
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes road {
+    from { background-position: 0 0; }
+    to { background-position: 40px 0; }
+  }
+}
+
+:root {
+  --color-background: #f6f4ef;
+  --color-surface: #ffffff;
+  --color-surface-alt: #f0ede6;
+  --color-border: #e4e0d6;
+  --color-text: #161513;
+  --color-text-soft: #66615a;
+  --color-primary: #ffcc1a;     /* preenchimentos (botão, selo, destaque) */
+  --color-primary-ink: #161513; /* texto sobre o amarelo */
+  --color-accent: #8a6200;      /* amarelo legível como TEXTO sobre fundo claro */
+  --color-danger: #c4321f;
+  --color-success: #13804a;
+  --color-warning: #9a5b00;
+  --color-info: #1f62c4;
+  --color-sidebar: #0b0b0b;
+}
+
+.dark {
+  --color-background: #0b0b0b;
+  --color-surface: #141414;
+  --color-surface-alt: #1c1c1c;
+  --color-border: #2a2a2a;
+  --color-text: #f7f3e8;
+  --color-text-soft: #a39e95;
+  --color-primary: #ffcc1a;
+  --color-primary-ink: #0b0b0b;
+  --color-accent: #ffd84d;
+  --color-danger: #ff7b66;
+  --color-success: #4ade9b;
+  --color-warning: #ffc94d;
+  --color-info: #7cb2ff;
+  --color-sidebar: #070707;
+}
+
+@theme inline {
+  --color-background: var(--color-background);
+  --color-surface: var(--color-surface);
+  --color-surface-alt: var(--color-surface-alt);
+  --color-border: var(--color-border);
+  --color-text: var(--color-text);
+  --color-text-soft: var(--color-text-soft);
+  --color-primary: var(--color-primary);
+  --color-primary-ink: var(--color-primary-ink);
+  --color-accent: var(--color-accent);
+  --color-danger: var(--color-danger);
+  --color-success: var(--color-success);
+  --color-warning: var(--color-warning);
+  --color-info: var(--color-info);
+  --color-sidebar: var(--color-sidebar);
+
+  --font-sans: 'Work Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+body {
+  @apply bg-background text-text antialiased;
+}
+
+h1, h2, h3, .font-display {
+  font-family: var(--font-display);
+  letter-spacing: 0.01em;
+}
+
+/* faixa quadriculada de táxi (detalhe de identidade em barras e no login) */
+.bg-checker {
+  background-image: repeating-conic-gradient(var(--checker-a, #0b0b0b) 0 25%, var(--checker-b, #ffcc1a) 0 50%);
+  background-size: 20px 20px;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Tema escuro sem chave da CARTO: escurece os tiles do OpenStreetMap (só o fundo; marcadores e linhas ficam normais) */
+.tiles-dark { filter: invert(1) hue-rotate(180deg) brightness(0.9) contrast(0.9) saturate(0.6); }
+
+/* Leaflet: popups e controles no tema do painel */
+.leaflet-container { font-family: inherit; background: var(--color-surface-alt); z-index: 0; } /* contém os z-index internos do Leaflet (não passam por cima do cabeçalho e dos modais) */
+.leaflet-popup-content-wrapper, .leaflet-popup-tip { background: var(--color-surface); color: var(--color-text); }
+.leaflet-popup-content { margin: 10px 14px; font-size: 13px; line-height: 1.4; }
+.dark .leaflet-bar a { background: #1c1c1c; color: #f7f3e8; border-color: #2a2a2a; }
+.dark .leaflet-control-attribution { background: rgba(11,11,11,.7); color: #a39e95; }
+.dark .leaflet-control-attribution a { color: #ffd84d; }
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
