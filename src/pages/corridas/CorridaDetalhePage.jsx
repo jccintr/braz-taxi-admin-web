@@ -73,7 +73,6 @@ export default function CorridaDetalhePage() {
   const points = [ride.origem, ride.destino].filter(hasPos).map(toLatLng);
   const events = ride.events ?? [];
   const messages = ride.messages ?? [];
-  const fee = ride.valorPlataforma ?? 0;
 
   return (
     <div className="animate-fade-up space-y-6">
@@ -122,14 +121,14 @@ export default function CorridaDetalhePage() {
                 <div><div className="text-xs font-semibold uppercase tracking-wider text-text-soft">Destino</div><p className="text-sm text-text">{ride.destino?.address ?? '—'}</p></div>
               </li>
             </ol>
-            <dl className="grid grid-cols-2 border-t border-border sm:grid-cols-4">
+            <dl className="grid grid-cols-3 border-t border-border">
               {[
                 ['Distância', formatDistance(ride.distancia)],
                 ['Duração est.', formatDuration(ride.duracao)],
-                ['Taxa plataforma', formatMoney(fee)],
-                ['Motorista recebe', formatMoney((ride.valor ?? 0) - fee)],
+                // Plataforma alugada: não há taxa por corrida, o motorista recebe o valor integral.
+                ['Motorista recebe', formatMoney(ride.valor ?? 0)],
               ].map(([k, v], i) => (
-                <div key={k} className={`px-5 py-4 ${i ? 'border-l border-border' : ''} ${i === 2 ? 'max-sm:border-l-0 max-sm:border-t' : ''} ${i === 3 ? 'max-sm:border-t' : ''}`}>
+                <div key={k} className={`px-5 py-4 ${i ? 'border-l border-border' : ''}`}>
                   <dt className="text-xs font-semibold uppercase tracking-wider text-text-soft">{k}</dt>
                   <dd className="mt-1 font-display text-xl font-semibold tabular-nums text-text">{v}</dd>
                 </div>
