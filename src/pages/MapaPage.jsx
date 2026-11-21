@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import { MapContainer, Marker, Popup, Polyline } from 'react-leaflet';
 import { HiOutlineRefresh, HiOutlineChevronDoubleLeft, HiOutlineChevronDoubleRight } from 'react-icons/hi';
 import { useLive } from '../context/LiveContext';
+import { listDrivers } from '../api/adminApi';
+import { useResource } from '../hooks/useResource';
 import { DEFAULT_CENTER, driverIcon, pendingIcon, acceptedIcon, hasPos, toLatLng } from '../components/map/mapKit';
 import { ThemedTiles, FitBounds, FlyTo } from '../components/map/MapParts';
 import Avatar from '../components/ui/Avatar';
@@ -21,7 +23,19 @@ export default function MapaPage() {
   const [target, setTarget] = useState(null);
   const markers = useRef({});
 
-  const drivers = useMemo(() => (data?.drivers ?? []).filter((d) => hasPos(d.position)), [data]);
+  // O GET /admin/map não traz a foto dos motoristas: buscamos a lista completa (a mesma da tela
+  // Motoristas, que tem o avatar) e completamos cada motorista do mapa pelo _id.
+  const { data: allDrivers } = useResource((signal) => listDrivers(signal), []);
+  const avatarById = useMemo(
+    () => Object.fromEntries((allDrivers ?? []).filter((d) => d.avatar).map((d) => [d._id, d.avatar])),
+    [allDrivers],
+  );
+  const drivers = useMemo(
+    () => (data?.drivers ?? [])
+      .filter((d) => hasPos(d.position))
+      .map((d) => (d.avatar || !avatarById[d._id] ? d : { ...d, avatar: avatarById[d._id] })),
+    [data, avatarById],
+  );
   const pending = useMemo(() => data?.pendingRides ?? [], [data]);
   const accepted = useMemo(() => data?.acceptedRides ?? [], [data]);
   const driverById = useMemo(() => Object.fromEntries(drivers.map((d) => [d._id, d])), [drivers]);
@@ -85,7 +99,7 @@ export default function MapaPage() {
           <Section title="Motoristas online" count={drivers.length} empty="Ninguém online agora.">
             {drivers.map((d) => (
               <Row key={d._id} onClick={() => focus(d._id, toLatLng(d.position))} active={target?.id === d._id}
-                avatar={<Avatar name={d.name} size="size-8" online />}
+                avatar={<Avatar src={d.avatar} name={d.name} size="size-8" online />}
                 title={d.name} subtitle={[d.veiculo?.modelo, d.veiculo?.cor, d.veiculo?.placa].filter(Boolean).join(' · ') || 'Veículo não informado'} />
             ))}
           </Section>
